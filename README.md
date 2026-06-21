@@ -8,10 +8,6 @@ Move the mouse over the flower: a short trail behind the cursor displaces indivi
 
 `index.html` is fully self-contained (WebGL + image + fonts inlined). Just open it in a browser, or serve it anywhere.
 
-### GitHub Pages
-1. Push this repo.
-2. Settings → Pages → Branch: `main` / root.
-3. Open `https://<user>.github.io/pixel-glitch-effect/`.
 
 ## Controls (Ajustes del efecto)
 - **Área de efecto** — thickness/reach of the wake
