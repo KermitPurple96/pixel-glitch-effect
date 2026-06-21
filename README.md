@@ -4,6 +4,8 @@ Interactive LED pixel-matrix flower with a cursor-driven **glitch / Matrix wake*
 
 Move the mouse over the flower: a short trail behind the cursor displaces individual pixels and turns them into glitching tiles (RGB split, colour scramble, shape warp) or falling Matrix glyphs. Tunable live from the on-screen panel.
 
+![demo](flor-pixel.gif)
+
 ## Run
 
 `index.html` is fully self-contained (WebGL + image + fonts inlined). Just open it in a browser, or serve it anywhere.
