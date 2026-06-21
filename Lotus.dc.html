@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700;6..96,900&family=Archivo:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #060406; overflow: hidden; }
+  * { box-sizing: border-box; }
+</style>
+</helmet>
+
+<div style="position: fixed; inset: 0; background: #060406; font-family: 'Archivo', sans-serif;">
+
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#070611"/>
+      <g fill="#2ec5ff">
+        <rect x="46" y="20" width="8" height="8"/><rect x="38" y="30" width="8" height="8"/><rect x="54" y="30" width="8" height="8"/>
+        <rect x="30" y="42" width="8" height="8"/><rect x="46" y="40" width="8" height="8"/><rect x="62" y="42" width="8" height="8"/>
+        <rect x="38" y="52" width="8" height="8"/><rect x="54" y="52" width="8" height="8"/>
+      </g>
+      <g fill="#56e39f"><rect x="46" y="64" width="8" height="8"/><rect x="46" y="74" width="8" height="8"/></g>
+      <g fill="#ff5bb0"><rect x="46" y="40" width="8" height="8" opacity="0.9"/></g>
+    </svg>
+  </template>
+  <canvas id="lotus-canvas" style="position: fixed; inset: 0; width: 100vw; height: 100vh; display: block;"></canvas>
+
+  <!-- vignette to deepen edges -->
+  <div style="position: fixed; inset: 0; pointer-events: none; background: radial-gradient(120% 120% at 50% 45%, rgba(6,4,6,0) 55%, rgba(6,4,6,0.85) 100%); z-index: 1;"></div>
+
+  <div id="ctrl" style="position: fixed; top: 18px; right: 18px; z-index: 5; width: 234px; padding: 16px 16px 18px; background: rgba(12,12,16,0.82); border: 1px solid rgba(255,255,255,0.12); border-radius: 11px; font-family: 'Archivo', sans-serif; color: #e9e9ee; box-shadow: 0 10px 34px rgba(0,0,0,0.55);">
+    <div style="font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55;">Ajustes del efecto</div>
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 14px 0 5px;">Área de efecto</label>
+    <input id="c_area" type="range" min="40" max="700" defaultValue="370" onInput="{{ onArea }}" style="width: 100%; accent-color: #6cc6ff;">
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Píxeles afectados</label>
+    <input id="c_aff" type="range" min="8" max="100" defaultValue="54" onInput="{{ onAff }}" style="width: 100%; accent-color: #6cc6ff;">
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Núcleo lleno</label>
+    <input id="c_core" type="range" min="8" max="130" defaultValue="8" onInput="{{ onCore }}" style="width: 100%; accent-color: #6cc6ff;">
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Matrix &harr; Glitch</label>
+    <input id="c_mix" type="range" min="0" max="100" defaultValue="52" onInput="{{ onMix }}" style="width: 100%; accent-color: #6cc6ff;">
+    <div style="display: flex; justify-content: space-between; font-size: 9px; opacity: 0.5; margin-top: 3px;"><span>GLITCH</span><span>MATRIX</span></div>
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Intensidad</label>
+    <input id="c_int" type="range" min="3" max="25" defaultValue="25" onInput="{{ onInt }}" style="width: 100%; accent-color: #6cc6ff;">
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Tiempo de retorno</label>
+    <input id="c_ret" type="range" min="2" max="60" defaultValue="14" onInput="{{ onRet }}" style="width: 100%; accent-color: #6cc6ff;">
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Hueco tras el cursor</label>
+    <input id="c_gap" type="range" min="0" max="40" defaultValue="0" onInput="{{ onGap }}" style="width: 100%; accent-color: #6cc6ff;">
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Velocidad de parpadeo</label>
+    <input id="c_flk" type="range" min="0" max="30" defaultValue="24" onInput="{{ onFlk }}" style="width: 100%; accent-color: #6cc6ff;">
+    <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Centelleo de la flor</label>
+    <input id="c_twk" type="range" min="0" max="30" defaultValue="6" onInput="{{ onTwk }}" style="width: 100%; accent-color: #6cc6ff;">
+  </div>
+
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;dotDensity&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:135,&quot;min&quot;:80,&quot;max&quot;:220,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;},&quot;push&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:1.0,&quot;min&quot;:0.2,&quot;max&quot;:2.5,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;},&quot;flowerX&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:0.57,&quot;min&quot;:0.35,&quot;max&quot;:0.72,&quot;step&quot;:0.01,&quot;tsType&quot;:&quot;number&quot;},&quot;flowerSize&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:0.98,&quot;min&quot;:0.6,&quot;max&quot;:1.3,&quot;step&quot;:0.02,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  componentDidMount() {
+    const canvas = document.getElementById('lotus-canvas');
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl', { antialias: true, premultipliedAlpha: false, preserveDrawingBuffer: true });
+    if (!gl) { console.warn('no webgl'); return; }
+    this.gl = gl;
+
+    // ---- shader: one LED tile per particle ----
+    const vsSrc = `
+      attribute vec2 aPos;     // y-up framebuffer px
+      attribute float aEnergy; // displacement glow 0..1
+      attribute float aGlyph;  // 0 = tile, >0 = matrix letter index
+      attribute vec3 aColor;
+      uniform vec2 uRes;
+      uniform float uSize;
+      varying vec3 vColor;
+      varying float vEnergy;
+      varying float vGlyph;
+      void main(){
+        vec2 clip = (aPos / uRes) * 2.0 - 1.0;
+        gl_Position = vec4(clip, 0.0, 1.0);
+        gl_PointSize = uSize * (aGlyph >= 0.5 ? 2.3 : (aGlyph <= -0.5 ? 1.7 : 1.0));
+        vColor = aColor;
+        vEnergy = aEnergy;
+        vGlyph = aGlyph;
+      }
+    `;
+    const fsSrc = `
+      precision mediump float;
+      varying vec3 vColor;
+      varying float vEnergy;
+      varying float vGlyph;
+      uniform sampler2D uGlyph;
+      uniform float uCols;
+      uniform float uRows;
+      float boxSDF(vec2 p){ vec2 q = abs(p) - vec2(0.52); return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 0.22; }
+      void main(){
+        if (vGlyph >= 0.5) {                         // MATRIX letter
+          float gi = vGlyph - 1.0;
+          float c = mod(gi, uCols), r = floor(gi / uCols);
+          vec2 cellUV = (vec2(c, r) + gl_PointCoord) / vec2(uCols, uRows);
+          float m = texture2D(uGlyph, cellUV).a;
+          if (m < 0.01) discard;
+          vec3 tint = mix(vColor, vec3(0.45, 1.0, 0.55), 0.7);
+          vec3 col = tint + max(vEnergy, 0.0) * (0.7 * tint + 0.16);
+          gl_FragColor = vec4(col * m, 1.0);
+        } else if (vGlyph <= -0.5) {                 // GLITCH tile: RGB split + colour scramble + shape warp
+          float rnd = fract(sin(dot(vColor.rg + vEnergy, vec2(12.9898, 78.233))) * 43758.5453);
+          vec2 pc = gl_PointCoord * 2.0 - 1.0;
+          pc.x /= (0.35 + 1.3 * fract(rnd * 3.0 + vEnergy));   // random horizontal stretch (shape)
+          pc.y /= (0.70 + 0.7 * fract(rnd * 7.0));
+          float off = 0.22 + 0.5 * fract(rnd * 5.0 + vEnergy * 0.5);
+          float mr = smoothstep(0.12, -0.05, boxSDF(pc - vec2(off, 0.0)));
+          float mg = smoothstep(0.12, -0.05, boxSDF(pc));
+          float mb = smoothstep(0.12, -0.05, boxSDF(pc + vec2(off, 0.0)));
+          if (max(mr, max(mg, mb)) < 0.01) discard;
+          vec3 base = vColor;
+          float gsel = fract(rnd + vEnergy * 1.3);
+          if (gsel < 0.33) base = base.gbr; else if (gsel < 0.66) base = base.brg;   // colour change
+          base *= 0.7 + 1.1 * fract(rnd * 9.0 + vEnergy);
+          gl_FragColor = vec4(base.r * mr, base.g * mg, base.b * mb, 1.0);
+        } else {                                     // normal LED tile
+          float m = smoothstep(0.12, -0.05, boxSDF(gl_PointCoord * 2.0 - 1.0));
+          if (m < 0.01) discard;
+          vec3 col = vColor;
+          if (vEnergy >= 0.0) col += vEnergy * (0.7 * vColor + 0.16);
+          else col *= (1.0 + vEnergy * 0.85);
+          gl_FragColor = vec4(col * m, 1.0);
+        }
+      }
+    `;
+    const compile = (type, src) => {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(s));
+      return s;
+    };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(prog);
+    this.prog = prog;
+    this.A = {
+      pos: gl.getAttribLocation(prog, 'aPos'),
+      energy: gl.getAttribLocation(prog, 'aEnergy'),
+      glyph: gl.getAttribLocation(prog, 'aGlyph'),
+      color: gl.getAttribLocation(prog, 'aColor'),
+    };
+    this.U = {
+      res: gl.getUniformLocation(prog, 'uRes'),
+      size: gl.getUniformLocation(prog, 'uSize'),
+      glyph: gl.getUniformLocation(prog, 'uGlyph'),
+      cols: gl.getUniformLocation(prog, 'uCols'),
+      rows: gl.getUniformLocation(prog, 'uRows'),
+    };
+    this.bufColor = gl.createBuffer();
+    this.bufPos = gl.createBuffer();
+
+    // ---- matrix glyph atlas ----
+    {
+      const chars = '0123456789ABCDEFｱｲｳｴｵｶｷｸ#%*+<>=?';
+      const cols = 8, rows = 4, cellpx = 48;
+      this.glyphCols = cols; this.glyphRows = rows; this.glyphCount = chars.length;
+      const gc = document.createElement('canvas');
+      gc.width = cols * cellpx; gc.height = rows * cellpx;
+      const gx = gc.getContext('2d');
+      gx.clearRect(0, 0, gc.width, gc.height);
+      gx.fillStyle = '#fff';
+      gx.font = 'bold ' + Math.round(cellpx * 0.74) + 'px monospace';
+      gx.textAlign = 'center'; gx.textBaseline = 'middle';
+      for (let i = 0; i < chars.length; i++) {
+        const c = i % cols, r = (i / cols) | 0;
+        gx.fillText(chars[i], c * cellpx + cellpx / 2, r * cellpx + cellpx / 2 + 1);
+      }
+      const gt = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, gt);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, gc);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      this.glyphTex = gt;
+    }
+
+    gl.disable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE);   // additive LED glow on black
+    gl.clearColor(0, 0, 0, 1);
+
+    // ---- flower colours sampled from image ----
+    this.texAR = 760 / 652;
+    this.ready = false;
+    const img = new Image();
+    img.onload = () => {
+      const cw = 420, ch = Math.round(cw * img.naturalHeight / img.naturalWidth);
+      const oc = document.createElement('canvas');
+      oc.width = cw; oc.height = ch;
+      const octx = oc.getContext('2d');
+      octx.drawImage(img, 0, 0, cw, ch);
+      this.flowerData = octx.getImageData(0, 0, cw, ch);
+      this.texAR = img.naturalWidth / img.naturalHeight;
+      this.ready = true;
+      this.key = '';   // force rebuild
+    };
+    img.src = 'flower_clean.png';
+
+    // ---- interaction ----
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.mouse = { x: -99999, y: -99999, has: false };
+    this.sm = { x: 0, y: 0, init: false };
+    this.mvx = 0; this.mvy = 0;
+    this.trail = []; this.trailMax = 40;   // recent mouse path (flat [x,y,...]) — short wake near the cursor
+    this.lastPush = { x: 0, y: 0, set: false };
+    this.cfg = { area: 370, affected: 0.54, core: 8, matrixRatio: 0.5, intensity: 2.5, returnTime: 14, gap: 0, flicker: 2.4, twinkle: 0.6 };
+
+    const onMove = (e) => {
+      const r = canvas.getBoundingClientRect();
+      this.mouse.x = (e.clientX - r.left) * this.dpr;
+      this.mouse.y = (r.height - (e.clientY - r.top)) * this.dpr;
+      this.mouse.has = true;
+    };
+    const onLeave = () => { this.mouse.has = false; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseleave', onLeave);
+    this._onMove = onMove; this._onLeave = onLeave;
+
+    const resize = () => {
+      this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(canvas.clientWidth * this.dpr);
+      canvas.height = Math.round(canvas.clientHeight * this.dpr);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    this._resize = resize;
+
+    const start = performance.now();
+    let prev = start;
+    const loop = (now) => {
+      this._raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.040, Math.max(0.001, (now - prev) / 1000)); prev = now;
+      const W = canvas.width, H = canvas.height;
+
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      if (!this.ready) return;
+
+      const density    = (this.props.dotDensity ?? 135);
+      const push        = this.cfg.intensity;
+      const returnSpeed = (this.props.returnSpeed ?? 1.0);
+      const flowerX     = (this.props.flowerX ?? 0.57);
+      const flowerSize  = (this.props.flowerSize ?? 0.98);
+
+      const key = [W, H, density, flowerX, flowerSize].join('_');
+      if (key !== this.key) { this.key = key; this.rebuild(W, H, density, flowerX, flowerSize); }
+      const N = this.N;
+      if (!N) return;
+
+      // smooth cursor + velocity (px/s)
+      let mx = -99999, my = -99999;
+      if (this.mouse.has) {
+        if (!this.sm.init) { this.sm.x = this.mouse.x; this.sm.y = this.mouse.y; this.sm.init = true; this.trail.length = 0; }
+        const nx = this.sm.x + (this.mouse.x - this.sm.x) * 0.35;
+        const ny = this.sm.y + (this.mouse.y - this.sm.y) * 0.35;
+        this.mvx = (nx - this.sm.x) / dt; this.mvy = (ny - this.sm.y) / dt;
+        this.sm.x = nx; this.sm.y = ny;
+        mx = nx; my = ny;
+        // push trail points spaced by a SMALL fixed distance -> short wake that follows the cursor closely
+        const minStep = 8 * this.dpr;
+        if (!this.lastPush.set || Math.hypot(nx - this.lastPush.x, ny - this.lastPush.y) >= minStep) {
+          this.trail.push(nx, ny);
+          this.lastPush.x = nx; this.lastPush.y = ny; this.lastPush.set = true;
+          if (this.trail.length > this.trailMax * 2) this.trail.splice(0, this.trail.length - this.trailMax * 2);
+          this.stillTime = 0;
+        } else {
+          // cursor paused: after a short stop, drop the old path so resuming starts a FRESH wake (not the old one)
+          this.stillTime = (this.stillTime || 0) + dt;
+          if (this.stillTime > 0.12) { this.trail.length = 0; this.lastPush.set = false; }
+        }
+      } else { this.sm.init = false; this.mvx = 0; this.mvy = 0; this.trail.length = 0; this.lastPush.set = false; }
+
+      // ---- particle physics ----
+      const hx = this.homeX, hy = this.homeY, px = this.posX, py = this.posY,
+            vx = this.velX, vy = this.velY, en = this.energy, dyn = this.dynArr;
+      const t = (now - start) / 1000;
+      const dpr = this.dpr;
+      const R = this.cfg.area * 0.2 * dpr;      // THIN tube radius along the path (no big disc)
+      const R2 = R * R;
+      const coreR = R * (this.cfg.core / 150);   // 100%-affected core (menu)
+      const bulge = R * 0.7;                     // (unused)
+      const k = 200 / this.cfg.returnTime;       // return stiffness (menu: lower = slower/longer)
+      const damp = Math.exp(-2.0 * Math.sqrt(k) * dt);
+      const dragGain = 2.6 * push;
+      const indForce = 620 * dpr * push;       // pixels displace more
+      const maxV = 2200 * dpr;
+      const dispScale = 1 / (70 * dpr);
+      const glyphThr = this.cellPx * 1.2;      // still-displaced tiles stay letters
+      const glyphChance = 0.4;                 // fewer pixels turn to letters
+      const trail = this.trail, tl = trail.length;
+      const rdx = this.rdx, rdy = this.rdy, rg = this.rg;
+      const glyphOf = this.glyphOf, gcount = this.glyphCount;
+      const gE = this.gE;
+      const gHold = this.gHold;
+      const cmx = mx, cmy = my;                  // current cursor (smoothed)
+      const sp2 = Math.hypot(this.mvx, this.mvy);
+      const vdx = sp2 > 0.5 ? this.mvx / sp2 : 0.0;
+      const vdy = sp2 > 0.5 ? this.mvy / sp2 : 0.0;
+      const fgap = 45 * dpr;                     // (unused) legacy
+      const cutR = R * 0.5;                      // dead radius around the cursor (kills the circle on it)
+      const cutR2 = cutR * cutR;
+      const feather = 55 * dpr;                  // soft fade-in behind the dead-zone (no hard line)
+      const affDensity = this.cfg.affected;      // fraction of eligible pixels affected (menu)
+      const matrixRatio = this.cfg.matrixRatio;  // 1 = all Matrix letters, 0 = all glitch tiles
+      const twk = this.cfg.twinkle;              // flower twinkle speed
+      const flk = this.cfg.flicker;              // glitch/letter flicker speed
+      const active = this.mouse.has;
+      const mvx = this.mvx, mvy = this.mvy;
+      const rate = this.rate, phase = this.phase;
+
+      for (let i = 0; i < N; i++) {
+        // the WHOLE flower lives: every tile twinkles on its own clock
+        const s = Math.sin(t * rate[i] * twk + phase[i]);
+        let e = s > 0.0 ? s * s * s * 0.55 : s * 0.10;
+
+        // flexible holographic surface: slow spring back to home
+        const dx = px[i] - hx[i], dy = py[i] - hy[i];
+        let ax = -k * dx, ay = -k * dy;
+        let makeGlyph = false;
+        const tEnd = tl - (Math.round(this.cfg.gap * 0.5) * 2 + 4);   // small gap after the cursor (menu)
+        if (active && tEnd > 0 && (vdx !== 0.0 || vdy !== 0.0)) {
+          // TAPERED short wake: radius grows from ~0 at the head (near cursor) to full R at the tail -> no disc
+          let cov = 0.0;
+          for (let tIdx = 0; tIdx < tEnd; tIdx += 2) {
+            const agePts = (tEnd - tIdx) / 2;                 // 0 = newest (head), bigger = older
+            let ramp = agePts / 12;                          // head tapers in over ~12 points
+            if (ramp > 1.0) ramp = 1.0;
+            if (ramp < 0.04) continue;
+            const Reff = R * ramp;
+            const rx = px[i] - trail[tIdx], ry = py[i] - trail[tIdx + 1];
+            const d2 = rx * rx + ry * ry;
+            if (d2 >= Reff * Reff) continue;
+            const dn = Math.sqrt(d2);
+            const ce = coreR * ramp;
+            let c = dn <= ce ? 1.0 : 1.0 - (dn - ce) / (Reff - ce);
+            if (c > cov) cov = c;
+          }
+          if (cov > 0.0 && Math.random() < cov * affDensity) {
+            ax += rdx[i] * rg[i] * cov * indForce;
+            ay += rdy[i] * rg[i] * cov * indForce;
+            ax += mvx * cov * dragGain * rg[i];
+            ay += mvy * cov * dragGain * rg[i];
+            if (Math.random() < cov * glyphChance) makeGlyph = true;
+          }
+        }
+        let nvx = (vx[i] + ax * dt) * damp;
+        let nvy = (vy[i] + ay * dt) * damp;
+        const spd = Math.hypot(nvx, nvy);
+        if (spd > maxV) { nvx = nvx / spd * maxV; nvy = nvy / spd * maxV; }
+        vx[i] = nvx; vy[i] = nvy;
+        px[i] += nvx * dt; py[i] += nvy * dt;
+
+        const disp = Math.hypot(px[i] - hx[i], py[i] - hy[i]);
+        let glyph = 0;
+        // a pixel BECOMES a glyph when first triggered, then KEEPS it (slow reroll only) until it returns home.
+        // (No fast per-frame re-randomization near the moving cursor.)
+        if (glyphOf[i] === 0) {
+          if (makeGlyph) {
+            glyphOf[i] = (Math.random() < matrixRatio) ? (1 + ((Math.random() * gcount) | 0)) : -1;
+            gE[i] = 0.4 + Math.random() * 0.6;
+            gHold[i] = 0.28;                                  // minimum lifetime -> can't fast-flicker
+          }
+        } else {
+          if (gHold[i] > 0) gHold[i] -= dt;
+          if (gHold[i] <= 0 && !makeGlyph && disp <= glyphThr) {
+            glyphOf[i] = 0;                                   // returned home -> normal tile again
+          } else if (Math.random() < flk * dt * 6.0) {       // slow flicker clock (menu)
+            if (glyphOf[i] > 0) glyphOf[i] = 1 + ((Math.random() * gcount) | 0);
+            gE[i] = 0.4 + Math.random() * 0.6;
+          }
+        }
+        if (glyphOf[i] !== 0) {
+          glyph = glyphOf[i];   // >0 letter, -1 glitch tile
+          e = gE[i];            // quantized (slow) flicker
+        } else {
+          const de = disp * dispScale;
+          if (de > e) e = de > 1 ? 0.7 : de * 0.7;
+        }
+        if (e > 1) e = 1; else if (e < -1) e = -1;
+        en[i] = e;
+        const o = i * 4;
+        dyn[o] = px[i]; dyn[o + 1] = py[i]; dyn[o + 2] = e; dyn[o + 3] = glyph;
+      }
+
+      // ---- draw ----
+      gl.useProgram(prog);
+      gl.uniform2f(this.U.res, W, H);
+      gl.uniform1f(this.U.size, this.cellPx * 1.15);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufColor);
+      gl.enableVertexAttribArray(this.A.color);
+      gl.vertexAttribPointer(this.A.color, 3, gl.FLOAT, false, 0, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufPos);
+      gl.bufferData(gl.ARRAY_BUFFER, this.dynArr, gl.DYNAMIC_DRAW);
+      gl.enableVertexAttribArray(this.A.pos);
+      gl.vertexAttribPointer(this.A.pos, 2, gl.FLOAT, false, 16, 0);
+      gl.enableVertexAttribArray(this.A.energy);
+      gl.vertexAttribPointer(this.A.energy, 1, gl.FLOAT, false, 16, 8);
+      gl.enableVertexAttribArray(this.A.glyph);
+      gl.vertexAttribPointer(this.A.glyph, 1, gl.FLOAT, false, 16, 12);
+
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, this.glyphTex);
+      gl.uniform1i(this.U.glyph, 2);
+      gl.uniform1f(this.U.cols, this.glyphCols);
+      gl.uniform1f(this.U.rows, this.glyphRows);
+
+      gl.drawArrays(gl.POINTS, 0, N);
+    };
+    this._raf = requestAnimationFrame(loop);
+  }
+
+  sampleColor(u, v) {
+    const id = this.flowerData, w = id.width, h = id.height, d = id.data;
+    let x = (u * w) | 0; let y = ((1 - v) * h) | 0;   // v is y-up
+    if (x < 0) x = 0; else if (x >= w) x = w - 1;
+    if (y < 0) y = 0; else if (y >= h) y = h - 1;
+    const o = (y * w + x) * 4;
+    let r = d[o] / 255, g = d[o + 1] / 255, b = d[o + 2] / 255;
+    const a = d[o + 3] / 255;
+    // tone: gamma, saturate, lift
+    r = Math.pow(r, 0.90); g = Math.pow(g, 0.90); b = Math.pow(b, 0.90);
+    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+    const sat = 1.45;
+    r = lum + (r - lum) * sat; g = lum + (g - lum) * sat; b = lum + (b - lum) * sat;
+    r *= 1.42; g *= 1.42; b *= 1.42;
+    return [r < 0 ? 0 : r, g < 0 ? 0 : g, b < 0 ? 0 : b, a];
+  }
+
+  rebuild(W, H, density, flowerX, flowerSize) {
+    const ar = this.texAR;
+    const rectH = H * flowerSize, rectW = rectH * ar;
+    const rectMinX = W * flowerX - rectW / 2;
+    const rectMinY = H * 0.5 - rectH / 2;
+    const D = Math.round(density);
+    const cellPx = rectW / D;
+    const rows = Math.max(1, Math.round(rectH / cellPx));
+    this.cellPx = cellPx;
+
+    const hx = [], hy = [], col = [];
+    for (let j = 0; j < rows; j++) {
+      const v = (j + 0.5) / rows;
+      for (let i = 0; i < D; i++) {
+        const u = (i + 0.5) / D;
+        const c = this.sampleColor(u, v);
+        const lum = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
+        if (c[3] < 0.4 || lum < 0.035) continue;            // skip transparent/dead tiles
+        hx.push(rectMinX + (i + 0.5) * cellPx);
+        hy.push(rectMinY + (j + 0.5) * cellPx);
+        col.push(c[0], c[1], c[2]);
+      }
+    }
+    const N = hx.length;
+    this.N = N;
+    this.homeX = Float32Array.from(hx);
+    this.homeY = Float32Array.from(hy);
+    this.posX = this.homeX.slice();
+    this.posY = this.homeY.slice();
+    this.velX = new Float32Array(N);
+    this.velY = new Float32Array(N);
+    this.energy = new Float32Array(N);
+    this.dynArr = new Float32Array(N * 4);
+    for (let i = 0; i < N; i++) { const o = i * 4; this.dynArr[o] = hx[i]; this.dynArr[o + 1] = hy[i]; }
+    this.glyphOf = new Float32Array(N);
+    this.gE = new Float32Array(N);
+    this.gHold = new Float32Array(N);
+    this.phase = new Float32Array(N);
+    this.rate = new Float32Array(N);
+    this.rdx = new Float32Array(N);
+    this.rdy = new Float32Array(N);
+    this.rg = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      this.phase[i] = Math.random() * 6.283; this.rate[i] = 0.7 + Math.random() * 2.4;
+      const a = Math.random() * 6.283; this.rdx[i] = Math.cos(a); this.rdy[i] = Math.sin(a);
+      this.rg[i] = 0.4 + Math.random() * 1.3;
+    }
+
+    const gl = this.gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufColor);
+    gl.bufferData(gl.ARRAY_BUFFER, Float32Array.from(col), gl.STATIC_DRAW);
+  }
+
+  componentWillUnmount() {
+    if (this._raf) cancelAnimationFrame(this._raf);
+    if (this._onMove) window.removeEventListener('mousemove', this._onMove);
+    if (this._onLeave) window.removeEventListener('mouseleave', this._onLeave);
+    if (this._resize) window.removeEventListener('resize', this._resize);
+  }
+
+  renderVals() {
+    return {
+      onArea: (e) => { if (this.cfg) this.cfg.area = +e.target.value; },
+      onAff:  (e) => { if (this.cfg) this.cfg.affected = +e.target.value / 100; },
+      onCore: (e) => { if (this.cfg) this.cfg.core = +e.target.value; },
+      onMix:  (e) => { if (this.cfg) this.cfg.matrixRatio = +e.target.value / 100; },
+      onInt:  (e) => { if (this.cfg) this.cfg.intensity = +e.target.value / 10; },
+      onRet:  (e) => { if (this.cfg) this.cfg.returnTime = +e.target.value; },
+      onGap:  (e) => { if (this.cfg) this.cfg.gap = +e.target.value; },
+      onFlk:  (e) => { if (this.cfg) this.cfg.flicker = +e.target.value / 10; },
+      onTwk:  (e) => { if (this.cfg) this.cfg.twinkle = +e.target.value / 10; },
+    };
+  }
+}
+</script>
+</body>
+</html>
