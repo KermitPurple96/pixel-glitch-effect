@@ -52,7 +52,7 @@
     <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Tiempo de retorno</label>
     <input id="c_ret" type="range" min="2" max="60" defaultValue="17" onInput="{{ onRet }}" style="width: 100%; accent-color: #6cc6ff;">
     <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Hueco tras el cursor</label>
-    <input id="c_gap" type="range" min="0" max="40" defaultValue="40" onInput="{{ onGap }}" style="width: 100%; accent-color: #6cc6ff;">
+    <input id="c_gap" type="range" min="0" max="40" defaultValue="0" onInput="{{ onGap }}" style="width: 100%; accent-color: #6cc6ff;">
     <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Velocidad de parpadeo</label>
     <input id="c_flk" type="range" min="0" max="30" defaultValue="30" onInput="{{ onFlk }}" style="width: 100%; accent-color: #6cc6ff;">
     <label style="display: block; font-size: 11px; opacity: 0.75; margin: 12px 0 5px;">Centelleo de la flor</label>
@@ -218,7 +218,7 @@ class Component extends DCLogic {
     this.mvx = 0; this.mvy = 0;
     this.trail = []; this.trailMax = 40;   // recent mouse path (flat [x,y,...]) — short wake near the cursor
     this.lastPush = { x: 0, y: 0, set: false };
-    this.cfg = { area: 700, affected: 0.54, core: 8, matrixRatio: 0.5, intensity: 2.5, returnTime: 17, gap: 40, flicker: 3.0, twinkle: 3.0 };
+    this.cfg = { area: 700, affected: 0.54, core: 8, matrixRatio: 0.5, intensity: 2.5, returnTime: 17, gap: 0, flicker: 3.0, twinkle: 3.0 };
 
     const onMove = (e) => {
       const r = canvas.getBoundingClientRect();
